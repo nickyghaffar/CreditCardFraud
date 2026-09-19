@@ -1,0 +1,28 @@
+# Python virtual environment
+venv/
+env/
+.env
+ENV/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# CatBoost training logs
+catboost_info/
+
+# Large Datasets & processed data (avoid GitHub 100MB file limit)
+creditcard.csv
+data/creditcard.csv
+data/processed_data.joblib
+*.zip
+*.tar.gz
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

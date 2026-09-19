@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CardGuard AI • سیستم هوشمند تشخیص تقلب بانکی</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="logo-shield">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>CardGuard <span class="accent-text">AI</span></h1>
+          <p class="subtitle">سیستم پایش و کشف بلادرنگ کلاهبرداری تراکنش‌های بانکی</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="detector">
+          <span class="tab-icon">🎯</span> تشخیص زنده
+        </button>
+        <button class="tab-btn" data-tab="simulator">
+          <span class="tab-icon">⚡</span> شبیه‌ساز تراکنش‌ها
+        </button>
+        <button class="tab-btn" data-tab="leaderboard">
+          <span class="tab-icon">🏆</span> رده‌بندی ۱۳ مدل
+        </button>
+        <button class="tab-btn" data-tab="analytics">
+          <span class="tab-icon">📊</span> گالری تحلیل‌ها
+        </button>
+      </nav>
+
+      <div class="system-status">
+        <span class="pulse-dot"></span>
+        <span>موتور هوش مصنوعی فعال</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metrics Ribbon -->
+  <section class="metrics-ribbon">
+    <div class="ribbon-card">
+      <div class="ribbon-label">مجموع تراکنش‌های تحلیل‌شده</div>
+      <div class="ribbon-val">۲۸۴,۸۰۷</div>
+      <div class="ribbon-sub">دیتاست مرجع استاندارد جهانی</div>
+    </div>
+    <div class="ribbon-card">
+      <div class="ribbon-label">نرخ کلاهبرداری در سیستم</div>
+      <div class="ribbon-val danger">۰.۱۷۲٪</div>
+      <div class="ribbon-sub">عدم تعادل شدید (۴۹۲ از ۲۸۴ هزار)</div>
+    </div>
+    <div class="ribbon-card">
+      <div class="ribbon-label">مدل پرچمدار و پیشتاز</div>
+      <div class="ribbon-val accent">XGBoost Classifier</div>
+      <div class="ribbon-sub">PR-AUC: ۰.۸۶۸۸ | Precision: ۸۷.۱٪</div>
+    </div>
+    <div class="ribbon-card">
+      <div class="ribbon-label">تعداد مدل‌های آموزش‌دیده</div>
+      <div class="ribbon-val">۱۳ مدل کامل</div>
+      <div class="ribbon-sub">از رگرسیون تا شبکه‌های عصبی عمیق</div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+    
+    <!-- Tab 1: Live Detector -->
+    <section id="tab-detector" class="tab-pane active">
+      <div class="grid-2col">
+        
+        <!-- Left: Input Controls -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3>🎛️ مشخصات تراکنش ورودی</h3>
+            <span class="card-badge">ورودی بلادرنگ</span>
+          </div>
+
+          <div class="form-group">
+            <label for="model-select">انتخاب مدل هوش مصنوعی برای ارزیابی:</label>
+            <select id="model-select" class="custom-select">
+              <option value="9. XGBoost" selected>🥇 XGBoost (بالاترین امتیاز دقت - قهرمان)</option>
+              <option value="12. Neural Network (MLP)">🥈 Neural Network MLP (شبکه عصبی چندلایه)</option>
+              <option value="6. Extra Trees">🥉 Extra Trees (بیشترین شکار کلاهبرداری - ۸۸٪)</option>
+              <option value="13. Super Ensemble (RF+XGB+LGB)">✨ Super Ensemble (ترکیب رأی‌گیری ۳ مدل برتر)</option>
+              <option value="5. Random Forest">🌲 Random Forest (جنگل تصادفی با ۱۰۰ درخت)</option>
+              <option value="11. CatBoost">🐱 CatBoost Classifier</option>
+              <option value="8. HistGradientBoosting">⚡ HistGradientBoosting</option>
+              <option value="1. Logistic Regression (Base)">📈 Logistic Regression (مدل پایه اولیه)</option>
+              <option value="2. Logistic Regression (Weighted)">⚖️ Weighted Logistic Regression (با جبران وزن)</option>
+            </select>
+          </div>
+
+          <div class="preset-buttons">
+            <span class="preset-title">تست سریع با سناریوهای واقعی:</span>
+            <div class="btn-group">
+              <button class="preset-btn btn-normal" onclick="loadPreset('normal')">🟢 تراکنش سالم</button>
+              <button class="preset-btn btn-fraud" onclick="loadPreset('fraud_blatant')">🔴 کلاهبرداری سنگین</button>
+              <button class="preset-btn btn-micro" onclick="loadPreset('fraud_micro')">⚠️ تست کارت ۱ دلاری</button>
+              <button class="preset-btn btn-random" onclick="loadPreset('random')">🎲 تصادفی</button>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="inputs-grid">
+            <div class="input-field">
+              <label>مبلغ تراکنش ($ Amount):</label>
+              <div class="input-with-unit">
+                <span class="unit">$</span>
+                <input type="number" id="input-amount" step="0.01" value="125.50">
+              </div>
+            </div>
+
+            <div class="input-field">
+              <label>زمان بر حسب ثانیه (Time):</label>
+              <input type="number" id="input-time" value="85000">
+            </div>
+          </div>
+
+          <!-- Key Features Discovered in EDA -->
+          <div class="key-features-section">
+            <div class="section-title-sm">متغیرهای کلیدی موثر بر تقلب (بر اساس تحلیل EDA):</div>
+            
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V14 (مهم‌ترین شاخص - ۲۲٪ اهمیت):</span>
+                <span class="slider-val" id="val-v14">-0.30</span>
+              </div>
+              <input type="range" id="input-v14" min="-20" max="10" step="0.1" value="-0.3">
+            </div>
+
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V10 (دومین شاخص قدرتمند - ۱۱٪ اهمیت):</span>
+                <span class="slider-val" id="val-v10">-0.10</span>
+              </div>
+              <input type="range" id="input-v10" min="-25" max="15" step="0.1" value="-0.1">
+            </div>
+
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V4 (شاخص مثبت کلاهبرداری - ۱۰٪ اهمیت):</span>
+                <span class="slider-val" id="val-v4">0.00</span>
+              </div>
+              <input type="range" id="input-v4" min="-6" max="17" step="0.1" value="0.0">
+            </div>
+
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V17 (شاخص افت شدید تقلب):</span>
+                <span class="slider-val" id="val-v17">-0.20</span>
+              </div>
+              <input type="range" id="input-v17" min="-25" max="10" step="0.1" value="-0.2">
+            </div>
+
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V12 (انحراف منفی در کلاهبرداری):</span>
+                <span class="slider-val" id="val-v12">-0.20</span>
+              </div>
+              <input type="range" id="input-v12" min="-18" max="8" step="0.1" value="-0.2">
+            </div>
+
+            <div class="feature-slider-row">
+              <div class="slider-label">
+                <span>V3 (کاهش شدید در تراکنش جعلی):</span>
+                <span class="slider-val" id="val-v3">0.10</span>
+              </div>
+              <input type="range" id="input-v3" min="-48" max="10" step="0.1" value="0.1">
+            </div>
+          </div>
+
+          <details class="accordion">
+            <summary class="accordion-header">مشاهده و تغییر سایر متغیرها (V1 تا V28)</summary>
+            <div class="accordion-content" id="other-features-container">
+              <!-- Dynamically populated -->
+            </div>
+          </details>
+
+          <button id="btn-analyze" class="btn-primary" onclick="analyzeTransaction()">
+            <span class="btn-icon">⚡</span> تحلیل هوشمند و استعلام ریسک
+          </button>
+        </div>
+
+        <!-- Right: Real-time Evaluation Results -->
+        <div class="glass-card result-panel">
+          <div class="card-header">
+            <h3>🛡️ ارزیابی بلادرنگ ریسک و تصمیم بانکی</h3>
+            <span class="card-badge pulse" id="badge-status">در انتظار استعلام</span>
+          </div>
+
+          <!-- SVG Semi-circle Gauge -->
+          <div class="gauge-container">
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 240 145">
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#00e676" />
+                    <stop offset="50%" stop-color="#ffb300" />
+                    <stop offset="100%" stop-color="#ff3860" />
+                  </linearGradient>
+                </defs>
+                <!-- Background track -->
+                <path class="gauge-track" d="M 30 125 A 90 90 0 0 1 210 125" fill="none" stroke-width="18" stroke-linecap="round" />
+                <!-- Dynamic fill -->
+                <path id="gauge-fill-arc" class="gauge-fill-arc" d="M 30 125 A 90 90 0 0 1 210 125" fill="none" stroke-width="18" stroke-linecap="round" stroke="url(#gaugeGrad)" />
+              </svg>
+              <div class="gauge-center-info">
+                <span class="gauge-percent" id="gauge-text">۰.۰٪</span>
+                <span class="gauge-sub">احتمال کلاهبرداری</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Decision Banner -->
+          <div class="decision-box" id="decision-box">
+            <div class="decision-icon" id="decision-icon">🛡️</div>
+            <div class="decision-content">
+              <div class="decision-title" id="decision-title">تراکنش در حال پایش</div>
+              <div class="decision-action" id="decision-action">دکمه «تحلیل هوشمند» را فشار دهید</div>
+            </div>
+          </div>
+
+          <!-- Info Cards -->
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-title">مدل تصمیم‌گیرنده</div>
+              <div class="info-val" id="res-model">XGBoost</div>
+            </div>
+            <div class="info-card">
+              <div class="info-title">سطح حساسیت امنیتی</div>
+              <div class="info-val" id="res-risk">نامشخص</div>
+            </div>
+            <div class="info-card">
+              <div class="info-title">آستانه قطعیت (Threshold)</div>
+              <div class="info-val">۵۰.۰٪</div>
+            </div>
+            <div class="info-card">
+              <div class="info-title">وضعیت اعتبارسنجی کارت</div>
+              <div class="info-val" id="res-valid">آماده بررسی</div>
+            </div>
+          </div>
+
+          <div class="bank-action-banner" id="action-banner">
+            <strong>دستورالعمل سیستمی بانک:</strong>
+            <p id="action-desc">سیستم هوش مصنوعی پس از ارزیابی احتمال تقلب، اقدام عملیاتی مقتضی را صادر خواهد کرد.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tab 2: Live Stream Simulator -->
+    <section id="tab-simulator" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h3>⚡ شبیه‌ساز زنده تراکنش‌های درگاه پرداخت بانکی</h3>
+            <p class="card-desc">پایش تراکنش‌های ورودی با مدل هوش مصنوعی در هر ثانیه</p>
+          </div>
+          <div class="stream-controls">
+            <button id="btn-stream-toggle" class="btn-stream" onclick="toggleStream()">
+              <span id="stream-icon">▶️</span> <span id="stream-btn-text">شروع استریم زنده</span>
+            </button>
+            <button class="btn-clear" onclick="clearStreamTable()">پاکسازی جدول</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table" id="stream-table">
+            <thead>
+              <tr>
+                <th>شناسه تراکنش</th>
+                <th>مبلغ ($)</th>
+                <th>زمان (ثانیه)</th>
+                <th>برچسب واقعی</th>
+                <th>احتمال تقلب (AI)</th>
+                <th>ارزیابی ریسک</th>
+                <th>دستور خودکار سامانه</th>
+              </tr>
+            </thead>
+            <tbody id="stream-tbody">
+              <tr>
+                <td colspan="7" class="empty-state">دکمه «شروع استریم زنده» را بزنید تا تراکنش‌های بانکی به صورت زنده پردازش شوند...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Leaderboard -->
+    <section id="tab-leaderboard" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h3>🏆 جدول مقایسه‌ای و رده‌بندی ۱۳ مدل یادگیری ماشین</h3>
+            <p class="card-desc">ارزیابی کامل روی ۵۶,۹۶۲ تراکنش بخش آزمون (Test Set)</p>
+          </div>
+          <span class="card-badge success">آزمون استاندارد</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table" id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>رتبه</th>
+                <th>نام مدل</th>
+                <th>PR-AUC (امتیاز طلایی)</th>
+                <th>نمره F1</th>
+                <th>دقت (Precision)</th>
+                <th>پوشش (Recall)</th>
+                <th>زمان آموزش</th>
+                <th>تقلب فراری (FN)</th>
+                <th>هشدار اشتباه (FP)</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <!-- Loaded via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Analytics Gallery -->
+    <section id="tab-analytics" class="tab-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <h3>📊 گالری بصری‌سازی‌ها و نمودارهای پروژه</h3>
+            <p class="card-desc">روی هر نمودار کلیک کنید تا در اندازه بزرگ و با کیفیت بالا نمایش داده شود.</p>
+          </div>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="gallery-item" onclick="openModal('/plots/all_models_pr_auc_comparison.png', 'رده‌بندی ۱۳ مدل بر اساس امتیاز PR-AUC')">
+            <img src="/plots/all_models_pr_auc_comparison.png" alt="PR-AUC Ranking">
+            <div class="gallery-caption">رده‌بندی ۱۳ مدل با امتیاز PR-AUC</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/rf_feature_importance.png', '۱۵ ویژگی کلیدی موثر در کشف کلاهبرداری')">
+            <img src="/plots/rf_feature_importance.png" alt="Feature Importance">
+            <div class="gallery-caption">۱۵ ویژگی کلیدی کلاهبرداری (Feature Importance)</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/all_models_tradeoff.png', 'تبادل میان Precision و Recall در تمام مدل‌ها')">
+            <img src="/plots/all_models_tradeoff.png" alt="Precision Recall Tradeoff">
+            <div class="gallery-caption">تبادل میان دقت و پوشش (Precision vs Recall)</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/correlation_heatmap.png', 'نقشه حرارتی همبستگی پیرسون ۳۱ متغیر')">
+            <img src="/plots/correlation_heatmap.png" alt="Correlation Heatmap">
+            <div class="gallery-caption">هیت‌مپ همبستگی تمام ۳۱ ستون دیتاست</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/imbalance_comparison_confusion_matrices.png', 'مقایسه ماتریس درهم‌ریختگی مدل پایه و متعادل‌سازی')">
+            <img src="/plots/imbalance_comparison_confusion_matrices.png" alt="Confusion Matrix Comparison">
+            <div class="gallery-caption">مقایسه ماتریس درهم‌ریختگی مدل‌ها (کاهش فرار تقلب)</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/final_pr_comparison.png', 'منحنی‌های جامع Precision-Recall')">
+            <img src="/plots/final_pr_comparison.png" alt="Final PR Curves">
+            <div class="gallery-caption">منحنی‌های مقایسه‌ای PR Curves</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/amount_normal_vs_fraud.png', 'باکس‌پلات مقایسه مبالغ تراکنش سالم و تقلبی')">
+            <img src="/plots/amount_normal_vs_fraud.png" alt="Amount Normal vs Fraud">
+            <div class="gallery-caption">مقایسه مبالغ تراکنش سالم و تقلبی (Boxplot)</div>
+          </div>
+
+          <div class="gallery-item" onclick="openModal('/plots/class_distribution.png', 'توزیع کلاسی تراکنش‌های دیتاست')">
+            <img src="/plots/class_distribution.png" alt="Class Distribution">
+            <div class="gallery-caption">توزیع تراکنش‌های عادی در برابر کلاهبرداری</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Zoom Modal -->
+  <div id="image-modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h4 id="modal-caption"></h4>
+      <img id="modal-img" src="" alt="Zoomed Chart">
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
