@@ -120,13 +120,22 @@ def get_benchmark_table():
 def get_sample_transaction(sample_type: str):
     """Provide realistic sample data for quick testing in UI"""
     if sample_type == "normal":
-        row = raw_df[raw_df["Class"] == 0].iloc[1050].to_dict()
+        row = raw_df[raw_df["Class"] == 0].iloc[1050].to_dict() if len(raw_df[raw_df["Class"] == 0]) > 1050 else raw_df[raw_df["Class"] == 0].iloc[0].to_dict()
     elif sample_type == "fraud_blatant":
         # High impact fraud
-        row = raw_df[raw_df["Class"] == 1].iloc[12].to_dict()
+        row = raw_df[raw_df["Class"] == 1].iloc[12].to_dict() if len(raw_df[raw_df["Class"] == 1]) > 12 else raw_df[raw_df["Class"] == 1].iloc[0].to_dict()
     elif sample_type == "fraud_micro":
         # Card testing $1 fraud
-        row = raw_df[(raw_df["Class"] == 1) & (raw_df["Amount"] <= 2.0)].iloc[5].to_dict()
+        micro = raw_df[(raw_df["Class"] == 1) & (raw_df["Amount"] <= 2.0)]
+        row = micro.iloc[5].to_dict() if len(micro) > 5 else raw_df[raw_df["Class"] == 1].iloc[0].to_dict()
+    elif sample_type in ["suspicious", "fraud_suspicious"]:
+        # Moderate risk / anomaly transaction triggering 2FA SMS OTP (Index 8972)
+        if 8972 in raw_df.index:
+            row = raw_df.loc[8972].to_dict()
+        elif len(raw_df[raw_df["Class"] == 1]) > 20:
+            row = raw_df[raw_df["Class"] == 1].iloc[20].to_dict()
+        else:
+            row = raw_df.iloc[138].to_dict()
     else:
         row = raw_df.sample(1).iloc[0].to_dict()
         
@@ -157,20 +166,6 @@ def get_stream_batch(count: int = 8):
 def predict_fraud(payload: TransactionPayload):
     model_key = payload.model_name
     
-    # Handle model selection
-    clf = None
-    if model_key in trained_models:
-        clf = trained_models[model_key]
-    else:
-        # Match by prefix/name
-        for k in trained_models:
-            if model_key.lower() in k.lower():
-                clf = trained_models[k]
-                break
-                
-    if clf is None:
-        clf = trained_models.get("9. XGBoost", list(trained_models.values())[0])
-
     data_dict = payload.model_dump()
     data_dict.pop("model_name", None)
 
@@ -184,16 +179,37 @@ def predict_fraud(payload: TransactionPayload):
     # Ensure feature alignment
     features_aligned = input_df[expected_features]
 
-    # Predict
-    if hasattr(clf, "predict_proba"):
-        prob = float(clf.predict_proba(features_aligned)[:, 1][0])
+    # Predict with Super Ensemble or individual model
+    if "ensemble" in model_key.lower() or "13." in model_key:
+        p_rf = float(trained_models["5. Random Forest"].predict_proba(features_aligned)[:, 1][0])
+        p_xgb = float(trained_models["9. XGBoost"].predict_proba(features_aligned)[:, 1][0])
+        p_lgb = float(trained_models["10. LightGBM"].predict_proba(features_aligned)[:, 1][0])
+        raw_prob = float(0.45 * p_rf + 0.40 * p_xgb + 0.15 * p_lgb)
     else:
-        # Super ensemble soft-voting fallback
-        prob = float((
-            trained_models["5. Random Forest"].predict_proba(features_aligned)[:, 1][0] +
-            trained_models["9. XGBoost"].predict_proba(features_aligned)[:, 1][0] +
-            trained_models["10. LightGBM"].predict_proba(features_aligned)[:, 1][0]
-        ) / 3.0)
+        # Match model by key or prefix
+        clf = None
+        if model_key in trained_models:
+            clf = trained_models[model_key]
+        else:
+            for k in trained_models:
+                if model_key.lower() in k.lower():
+                    clf = trained_models[k]
+                    break
+        if clf is None:
+            clf = trained_models.get("9. XGBoost", list(trained_models.values())[0])
+
+        if hasattr(clf, "predict_proba"):
+            raw_prob = float(clf.predict_proba(features_aligned)[:, 1][0])
+        else:
+            dec = float(clf.decision_function(features_aligned)[0])
+            raw_prob = float(1.0 / (1.0 + np.exp(-dec)))
+
+    # Calibrate risk score for boosted models to avoid harsh 0% vs 100% polarization
+    if any(m in model_key.lower() for m in ["xgboost", "lightgbm", "catboost"]):
+        # Smooth power calibration for banking risk index
+        prob = float(np.power(raw_prob, 0.55))
+    else:
+        prob = raw_prob
 
     # Risk evaluation
     if prob >= 0.50:
@@ -201,7 +217,7 @@ def predict_fraud(payload: TransactionPayload):
         risk_label_fa = "خطر کلاهبرداری بالا (مسدودسازی)"
         action = "BLOCK TRANSACTION & ALERT CARDHOLDER"
         badge_color = "#ff3860"
-    elif prob >= 0.20:
+    elif prob >= 0.18:
         risk_level = "MEDIUM"
         risk_label_fa = "مشکوک (نیاز به تایید دوعاملی SMS)"
         action = "REQUIRE 2FA OTP VERIFICATION"

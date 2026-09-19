@@ -50,7 +50,14 @@ function buildRemainingFeaturesUI() {
   }
 }
 
-// Synchronize sliders with text values
+// Debounced live prediction on slider/input changes
+let debounceTimer;
+function triggerLiveAnalysis() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(analyzeTransaction, 200);
+}
+
+// Synchronize sliders with text values and trigger live update
 function setupSliderSync() {
   const sliders = ["v14", "v10", "v4", "v17", "v12", "v3"];
   sliders.forEach(id => {
@@ -59,9 +66,20 @@ function setupSliderSync() {
     if (slider && display) {
       slider.addEventListener("input", (e) => {
         display.textContent = parseFloat(e.target.value).toFixed(2);
+        triggerLiveAnalysis();
       });
     }
   });
+
+  // Also listen for model changes or amount/time edits
+  const modelSelect = document.getElementById("model-select");
+  if (modelSelect) {
+    modelSelect.addEventListener("change", () => triggerLiveAnalysis());
+  }
+  const amtInput = document.getElementById("input-amount");
+  if (amtInput) {
+    amtInput.addEventListener("input", triggerLiveAnalysis);
+  }
 }
 
 // Collect all feature values from UI
@@ -158,10 +176,18 @@ function displayResults(res) {
     fillArc.style.strokeDashoffset = offset;
   }
   if (text) {
-    text.textContent = `${percent.toFixed(1)}٪`;
+    let formattedText;
+    if (percent === 0) {
+      formattedText = "۰.۰٪";
+    } else if (percent < 0.1) {
+      formattedText = `${percent.toFixed(2)}٪`;
+    } else {
+      formattedText = `${percent.toFixed(1)}٪`;
+    }
+    text.textContent = formattedText;
     if (prob >= 0.50) {
       text.style.color = "var(--color-danger)";
-    } else if (prob >= 0.20) {
+    } else if (prob >= 0.18) {
       text.style.color = "var(--color-warning)";
     } else {
       text.style.color = "var(--color-success)";
